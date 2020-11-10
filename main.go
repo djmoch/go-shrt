@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -23,7 +24,7 @@ var (
 )
 
 func usage(r int) {
-	fmt.Printf("usage: %s [-d dbpath] [-c cfgpath] [init]\n", arg0)
+	fmt.Printf("usage: %s [-d dbpath] [-c cfgpath] [-l listenaddr] [init]\n", arg0)
 	os.Exit(r)
 }
 
@@ -41,6 +42,7 @@ func handl(w http.ResponseWriter, req *http.Request) {
 
 	if req.URL.Query().Get("go-get") == "1" {
 		repo := key
+		log.Println("go-get request for", repo)
 		resp := "<!DOCTYPE html>\n"
 		resp += "<html>\n"
 		resp += "<head>\n"
@@ -65,6 +67,7 @@ func handl(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if val, ok := (*shrt)[key]; ok {
+		log.Println("shortlink request for", key)
 		w.Header().Add("Location", val)
 		w.WriteHeader(http.StatusMovedPermanently)
 		w.Write([]byte("Redirecting\n"))
@@ -82,6 +85,7 @@ func main() {
 
 	dbpath := "shrt.db"
 	cfgpath := "shrt.conf"
+	listenaddr := ":8080"
 	//doinit := false
 	for i := 1; i < len(os.Args); i++ {
 		switch os.Args[i] {
@@ -93,6 +97,9 @@ func main() {
 		case "-c":
 			i += 1
 			cfgpath = os.Args[i]
+		case "-l":
+			i += 1
+			listenaddr = os.Args[i]
 		case "init":
 			//doinit = true
 			break
@@ -112,5 +119,6 @@ func main() {
 	shrt = readShrtFile(dbpath)
 
 	http.Handle("/", http.HandlerFunc(handl))
-	http.ListenAndServe(":8080", nil)
+	log.Println("listening on", listenaddr)
+	log.Fatal(http.ListenAndServe(listenaddr, nil))
 }
