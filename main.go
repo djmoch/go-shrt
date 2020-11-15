@@ -40,6 +40,14 @@ func handl(w http.ResponseWriter, req *http.Request) {
 		key = key[1:]
 	}
 
+	if key == "" && (*cfg)["barerdr"] != "" {
+		log.Println("shortlink request for /")
+		w.Header().Add("Location", (*cfg)["barerdr"])
+		w.WriteHeader(http.StatusFound)
+		w.Write([]byte("Redirecting\n"))
+		return
+	}
+
 	if req.URL.Query().Get("go-get") == "1" {
 		repo := key
 		log.Println("go-get request for", repo)
