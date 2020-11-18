@@ -48,42 +48,37 @@ func handl(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if req.URL.Query().Get("go-get") == "1" {
-		repo := key
-		log.Println("go-get request for", repo)
-		resp := "<!DOCTYPE html>\n"
-		resp += "<html>\n"
-		resp += "<head>\n"
-		resp += `<meta http-equiv="Content-Type" `
-		resp += "content=\"text/html; charset=utf-8\"/>\n"
-		resp += "<meta name=\"go-import\" "
-		resp += fmt.Sprintf("content=\"%s/%s %s %s/%s%s\">\n",
-			(*cfg)["srvname"], repo, (*cfg)["scmtype"],
-			(*cfg)["rdrname"], repo, (*cfg)["suffix"])
-		resp += `<meta http-equiv="refresh" content="0; `
-		resp += fmt.Sprintf("url=https://godoc.org/%s/%s\">\n",
-			(*cfg)["srvname"], repo)
-		resp += "</head>\n"
-		resp += "<body>\n"
-		resp += `Redirecting to docs at <a href="https://godoc.org/`
-		resp += fmt.Sprintf("%s/%s\">godoc.org/%s/%s</a>...\n",
-			(*cfg)["srvname"], repo, (*cfg)["srvname"], repo)
-		resp += "</body>\n"
-		resp += "</html>\n"
-		w.Write([]byte(resp))
-		return
-	}
-
 	if val, ok := (*shrt)[key]; ok {
 		log.Println("shortlink request for", key)
 		w.Header().Add("Location", val)
 		w.WriteHeader(http.StatusMovedPermanently)
 		w.Write([]byte("Redirecting\n"))
-	} else {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("Short link not found\n"))
+		return
 	}
 
+	repo := key
+	log.Println("go-get request for", repo)
+	resp := "<!DOCTYPE html>\n"
+	resp += "<html>\n"
+	resp += "<head>\n"
+	resp += `<meta http-equiv="Content-Type" `
+	resp += "content=\"text/html; charset=utf-8\"/>\n"
+	resp += "<meta name=\"go-import\" "
+	resp += fmt.Sprintf("content=\"%s/%s %s %s/%s%s\">\n",
+		(*cfg)["srvname"], repo, (*cfg)["scmtype"],
+		(*cfg)["rdrname"], repo, (*cfg)["suffix"])
+	resp += `<meta http-equiv="refresh" content="0; `
+	resp += fmt.Sprintf("url=https://godoc.org/%s/%s\">\n",
+		(*cfg)["srvname"], repo)
+	resp += "</head>\n"
+	resp += "<body>\n"
+	resp += `Redirecting to docs at <a href="https://godoc.org/`
+	resp += fmt.Sprintf("%s/%s\">godoc.org/%s/%s</a>...\n",
+		(*cfg)["srvname"], repo, (*cfg)["srvname"], repo)
+	resp += "</body>\n"
+	resp += "</html>\n"
+	w.Write([]byte(resp))
+	return
 }
 
 func main() {
