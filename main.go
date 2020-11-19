@@ -40,11 +40,27 @@ func handl(w http.ResponseWriter, req *http.Request) {
 		key = key[1:]
 	}
 
+	if strings.Contains(key, "/") {
+		log.Println("bad request: " + key)
+		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte("Request path not allowed\n"))
+		return
+	}
+
 	if key == "" && (*cfg)["barerdr"] != "" {
 		log.Println("shortlink request for /")
 		w.Header().Add("Location", (*cfg)["barerdr"])
 		w.WriteHeader(http.StatusFound)
 		w.Write([]byte("Redirecting\n"))
+		return
+	}
+
+	if key == "robots.txt" {
+		log.Println("incoming robot")
+		resp := "# Welcome to Shrt\n"
+		resp += "User-Agent: *\n"
+		resp += "Disallow:\n"
+		w.Write([]byte(resp))
 		return
 	}
 
