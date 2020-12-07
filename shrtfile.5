@@ -1,0 +1,65 @@
+.\" See LICENSE file for copyright and license details
+.Dd 2020-12-06
+.Dt SHRTFILE 5
+.Os
+.Sh NAME
+.Nm shrtfile ,
+.Nm shrt.conf ,
+.Nm shrt.db
+.Nd URL shortener data files
+.Sh DESCRIPTION
+Shrtfiles are simple key-value values used by the
+.Xr shrt 1
+URL shortener.
+The syntax of the file is human readable.
+Each line represents a key-value pair.
+The key is everything to the left of the first equals sign, and the
+value is everything to the right.
+Whitespace is trimmed from the beginning and end of both keys and
+values.
+.Pp
+.Pa shrt.db
+Is a shrtfile containing all of the shortlinks recognized by the server.
+The key is the shortlink (i.e., the request path), and the value
+is the redirect URL.
+.Pp
+.Pa shrt.conf
+is a shrtfile with a specific set of keys:
+.Bl -tag -width Ds -compact
+.It srvname
+This is the FQDN of the
+.Xr shrt 1
+server instance.
+By convention URL shorteners keep this as short as possible (think
+bit.ly, or something similar).
+.It scmtype
+The scmtype defines what SCM type to insert into go-get responses
+(e.g., git, hg).
+.It suffix
+The suffix is appended to the redirect URL for go-get requests.
+Use this if, for instance, you're redirecting to a Git server that
+uses the .git extension for all of its clone URLs.
+.It rdrname
+The rdrname is the full, base URL to use for go-get redirects.
+The formula for these redirects is {rdrname}/{request path}{suffix}.
+.It barerdr
+The barerdr is the redirect URL for requests to the base path (i.e.,
+"/").
+.El
+.Sh FILES
+.Bl -tag -width Ds -compact
+.It Pa shrt.conf
+.It Pa shrt.db
+.El
+.Sh EXAMPLES
+The following file contents would suffice for
+.Pa shrt.conf :
+.Bd -literal
+srvname = example.com
+scmtype = git
+suffix = .git
+rdrname = https://git.example.com
+barerdr = https://www.example.com
+.Ed
+.Sh SEE ALSO
+.Xr shrt 1

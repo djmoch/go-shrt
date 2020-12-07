@@ -6,8 +6,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path"
 	"strings"
+	"sync"
+	"syscall"
 
 	goshrt "djmo.ch/go-shrt"
 )
@@ -23,6 +26,7 @@ const (
 
 var (
 	arg0 = path.Base(os.Args[0])
+	mux  = sync.RWMutex{}
 
 	shrt, cfg *goshrt.ShrtFile
 	version   string
@@ -56,21 +60,7 @@ func handl(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("Request path not allowed\n"))
 		return
 	}
-	if strings.Contains(key, "/") {
-		log.Println("bad request: " + key)
-		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte("Request path not allowed\n"))
-		return
-	}
 
-	if key == "robots.txt" {
-		log.Println("incoming robot")
-		resp := "# Welcome to Shrt\n"
-		resp += "User-Agent: *\n"
-		resp += "Disallow:\n"
-		w.Write([]byte(resp))
-		return
-	}
 	if key == "robots.txt" {
 		log.Println("incoming robot")
 		resp := "# Welcome to Shrt\n"
@@ -88,6 +78,8 @@ func handl(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	mux.RLock()
+	defer mux.RUnlock()
 	if val := shrt.Get(key); val != "" {
 		log.Println("shortlink request for", key)
 		w.Header().Add("Location", val)
@@ -171,6 +163,22 @@ func doInit(path string) {
 	m.Write()
 }
 
+func hangup(dbpath string) {
+	hup := make(chan os.Signal)
+	signal.Notify(hup, syscall.SIGHUP)
+	for {
+		<-hup
+		tmpShrt, err := goshrt.ReadShrtFile(dbpath)
+		if err != nil {
+			log.Printf("db error -- %s\n", err.Error())
+		} else {
+			mux.Lock()
+			shrt = tmpShrt
+			mux.Unlock()
+		}
+	}
+}
+
 func main() {
 	var err error
 	if len(os.Args) > 4 {
@@ -222,6 +230,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s: db error -- %s\n", arg0, err.Error())
 		os.Exit(errShrtFile)
 	}
+
+	go hangup(dbpath)
 
 	http.Handle("/", http.HandlerFunc(handl))
 	log.Println("listening on", listenaddr)

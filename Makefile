@@ -1,15 +1,37 @@
-VERSION := 0.1.0-dev0
+.POSIX:
+
+include config.mk
 
 all: shrt
 
 go.mod: cmd/shrt/main.go *.go
-	go mod tidy
-	touch go.mod
+	${GO} mod tidy
+	@touch go.mod
 
 shrt: go.mod
-	go build -ldflags "-X main.version=${VERSION}" ./cmd/shrt
+	${GO} build -ldflags ${GO_LDFLAGS} ./cmd/shrt
 
 clean:
 	rm -f shrt
 
-.PHONY: all clean
+install: shrt
+	install -Dm755 shrt ${DESTDIR}${PREFIX}/bin/shrt
+	install -Dm644 shrt.1 ${DESTDIR}${MANPATH}/man1/shrt.1
+	install -Dm644 shrt.1 ${DESTDIR}${MANPATH}/man5/shrtfile.5
+
+uninstall:
+	rm -f ${DESTDIR}${PREFIX}/bin/shrt
+	rm -f ${DESTDIR}${MANPATH}/man1/shrt.1
+	rm -f ${DESTDIR}${MANPATH}/man5/shrtfile.5
+
+dist:
+	rm -rf shrt-${VERSION}
+	mkdir shrt-${VERSION}
+	cp -r ${DIST_SRC} shrt-${VERSION}
+	tar -cf - shrt-${VERSION} | gzip > shrt-${VERSION}.tar.gz
+
+distclean:
+	rm -rf shrt-${VERSION}
+	rm -f shrt-${VERSION}.tar.gz
+
+.PHONY: all clean install uninstall dist distclean

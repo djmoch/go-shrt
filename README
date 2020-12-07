@@ -7,4 +7,38 @@ putting all the vowels in "shrt" and enjoy yourself!
 Also handles go-get redirects.
 
 There's no UI to add a new shortlink at this time. Just edit the DB by
-hand.
+hand and kill -HUP the process.
+
+building
+--------
+
+$ make
+
+installation
+------------
+
+# make install
+
+using
+-----
+
+Note that by default shrt expects its data files to be relative to the
+current directory.
+
+$ shrt -h
+usage: shrt [-hv] [-d dbpath] [-c cfgpath] [-l listenaddr] [init]
+$ shrt init
+server name: example.com
+SCM type: git # or hg, etc.. used for go-get redirects
+repo suffix (blank for none): .git # suffix to add to go-get repo URIs
+redirect base url: https://git.example.com
+bare redirect url: https://www.example.com
+$ shrt -l localhost:8080
+2020/12/06 12:57:01 listening on localhost:8080
+
+HTTPS is out-of-scope. Use a reverse-proxy with TLS termination.
+
+more documentation
+------------------
+
+$ man 1 shrt

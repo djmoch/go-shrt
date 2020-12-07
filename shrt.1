@@ -1,0 +1,101 @@
+.\" See LICENSE file for copyright and license details
+.Dd 2020-12-06
+.Dt SHRT 1
+.Os
+.Sh NAME
+.Nm shrt
+.Nd URL shortener and go-get handler
+.Sh SYNOPSIS
+.Nm
+.Op Fl hv
+.Op Fl c Ar cfgpath
+.Op Fl d Ar dbpath
+.Op Fl l Ar listenaddr
+.Op Ar init
+.Sh DESCRIPTION
+.Nm
+is a URL shortener service (much like bit.ly without the trackers)
+that also handles go-get requests.
+The latter are a specific GET request query used by the Go programming
+language toolchain to aid in the downloading of utilities and
+libraries prior to build and installation.
+.Pp
+Upon invocation,
+.Nm
+does one of two things is done depending on the presence or absence
+of the
+.Ar init
+argument.
+If the
+.Ar init
+argument is present, a series of questions is asked, the responses
+are recorded in a configuration file, and the program exits.
+See
+.Xr shrtfile 5
+for a description of the config file syntax and contents.
+If the
+.Ar init
+argument is absent,
+.Nm
+reads the configuration and database files into memory, binds to
+the port specified by the
+.Fl l
+flag, and begins serving requests.
+.Pp
+Shortlinks are recorded in the database, and any request path not
+matching a shortlink is assumed to be a go-get request.
+This is by design, but can result in specious redirects.
+Additionally, subdirectory paths are not allowed.
+.Pp
+Shortlinks generate an HTTP 301 response.
+Go-get requests generate an HTTP 200 response.
+If configured, requests to the base path (i.e., "/") generate an
+HTTP 302 response.
+.Pp
+The database file is human-readable and formatted according to
+.Xr shrtfile 5 ,
+basically a key-value store.
+In order to add a new shortlink to the database, simply edit the file.
+After saving, send SIGHUP to a running server process to reload the
+file (see
+.Xr kill 1 ).
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl h
+Print usage and exit.
+.It Fl v
+Print version and exit.
+.It Fl c Ar cfgpath
+Change the path to search for the configuration file (default: shrt.conf)
+.It Fl d Ar dbpath
+Change the path to search for the database (default: shrt.db)
+.It Fl l Ar listenaddr
+Change the address:port to bind to (default: 0.0.0.0:8080)
+.El
+.Sh EXAMPLES
+Initialize the
+.Nm
+configuration file:
+.Pp
+.Dl $ shrt init
+.Pp
+Run the server on localhost, port 8080:
+.Pp
+.Dl $ shrt -l localhost:8080
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr shrtfile 5 ,
+.Xr kill 1
+.br
+RFC 7231: Hypertext Transfer Protocol (HTTP/1.1): Semantics and
+Content
+.br
+.Lk https://golang.org/doc/articles/go_command.html?h=go+get "About the go command"
+.Sh HISTORY
+.Nm
+began in November 2020.
+.Sh AUTHORS
+.Nm
+was written by
+.An Daniel Moch Aq Mt daniel@danielmoch.com .

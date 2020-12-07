@@ -1,3 +1,5 @@
-shrt
+/shrt
 shrt.conf
 shrt.db
+shrt-*.tar.gz
+/shrt*/
