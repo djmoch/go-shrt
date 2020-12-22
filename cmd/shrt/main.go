@@ -53,11 +53,11 @@ const (
 )
 
 var (
-	arg0 = path.Base(os.Args[0])
-	mux  = sync.RWMutex{}
+	arg0    = path.Base(os.Args[0])
+	mux     = sync.RWMutex{}
+	version = "go-get"
 
 	shrt, cfg *goshrt.ShrtFile
-	version   string
 	osInit    func(string) error
 )
 
