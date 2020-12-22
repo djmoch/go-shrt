@@ -216,7 +216,7 @@ func main() {
 
 	dbpath := "shrt.db"
 	cfgpath := "shrt.conf"
-	listenaddr := ":8080"
+	listenaddr := "localhost:8080"
 	doinit := false
 	for i := 1; i < len(os.Args); i++ {
 		switch os.Args[i] {
