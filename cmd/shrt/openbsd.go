@@ -23,7 +23,7 @@ func init() {
 		if err != nil {
 			return fmt.Errorf("osInit: %s", err.Error())
 		}
-		pledge("stdio rpath inet flock", "")
+		pledge("stdio rpath dns inet flock", "")
 		if err != nil {
 			return fmt.Errorf("osInit: %s", err.Error())
 		}
