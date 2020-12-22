@@ -5,7 +5,7 @@ include config.mk
 
 all: shrt
 
-go.mod: cmd/shrt/*.go *.go
+go.mod: ${SRC}
 	${GO} mod tidy
 	@touch go.mod
 
