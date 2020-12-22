@@ -58,6 +58,7 @@ var (
 
 	shrt, cfg *goshrt.ShrtFile
 	version   string
+	osInit    func(string) error
 )
 
 func usage(r int) {
@@ -252,6 +253,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s: config error -- %s\n", arg0, err.Error())
 		os.Exit(errShrtFile)
 	}
+
+	osInit(dbpath)
 
 	shrt, err = goshrt.ReadShrtFile(dbpath)
 	if err != nil {
