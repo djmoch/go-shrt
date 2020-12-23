@@ -32,7 +32,6 @@ dist:
 	tar -cf - shrt-${VERSION} | gzip > shrt-${VERSION}.tar.gz
 
 distclean:
-	rm -rf shrt-${VERSION}
-	rm -f shrt-${VERSION}.tar.gz
+	rm -rf shrt-*
 
 .PHONY: all clean install uninstall dist distclean
