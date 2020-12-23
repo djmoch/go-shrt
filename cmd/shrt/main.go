@@ -254,7 +254,9 @@ func main() {
 		os.Exit(errShrtFile)
 	}
 
-	osInit(dbpath)
+	if osInit != nil {
+		osInit(dbpath)
+	}
 
 	shrt, err = goshrt.ReadShrtFile(dbpath)
 	if err != nil {
