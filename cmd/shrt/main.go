@@ -193,7 +193,7 @@ func doInit(path string) {
 }
 
 func hangup(dbpath string) {
-	hup := make(chan os.Signal)
+	hup := make(chan os.Signal, 1)
 	signal.Notify(hup, syscall.SIGHUP)
 	for {
 		<-hup
