@@ -74,7 +74,7 @@ func print_version() {
 func handl(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte("Method not allowed\n"))
+		fmt.Fprintf(w, "Method not allowed")
 		return
 	}
 
@@ -83,19 +83,12 @@ func handl(w http.ResponseWriter, req *http.Request) {
 		key = key[1:]
 	}
 
-	if strings.Contains(key, "/") {
-		log.Println("bad request: " + key)
-		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte("Request path not allowed\n"))
-		return
-	}
-
 	if key == "robots.txt" {
 		log.Println("incoming robot")
 		resp := "# Welcome to Shrt\n"
 		resp += "User-Agent: *\n"
 		resp += "Disallow:\n"
-		w.Write([]byte(resp))
+		fmt.Fprintf(w, resp)
 		return
 	}
 
@@ -107,17 +100,19 @@ func handl(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	mux.RLock()
-	defer mux.RUnlock()
-	if val := shrt.Get(key); val != "" {
-		log.Println("shortlink request for", key)
-		w.Header().Add("Location", val)
-		w.WriteHeader(http.StatusMovedPermanently)
-		w.Write([]byte("Redirecting\n"))
-		return
+	if !strings.Contains(key, "/") {
+		mux.RLock()
+		defer mux.RUnlock()
+		if val := shrt.Get(key); val != "" {
+			log.Println("shortlink request for", key)
+			w.Header().Add("Location", val)
+			w.WriteHeader(http.StatusMovedPermanently)
+			w.Write([]byte("Redirecting\n"))
+			return
+		}
 	}
 
-	repo := key
+	repo := strings.SplitN(key, "/", 2)[0]
 	log.Println("go-get request for", repo)
 	resp := "<!DOCTYPE html>\n"
 	resp += "<html>\n"
