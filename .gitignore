@@ -1,6 +1,5 @@
 /shrt
+/cmd/shrt/shrt
 *.sig
-shrt.conf
-shrt.db
 shrt-*.tar.gz
 /shrt*/

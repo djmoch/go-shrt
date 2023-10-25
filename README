@@ -1,44 +1,32 @@
-go-shrt
-========
+Shrt
+====
 
 This is a URL shortener. There are many like it, but this is mine. Try
 putting all the vowels in "shrt" and enjoy yourself!
 
 Also handles go-get redirects.
 
-There's no UI to add a new shortlink at this time. Just edit the DB by
-hand and kill -HUP the process.
-
-building
---------
-
-$ make
-
-installation
+HTTP Handler
 ------------
 
-# make install
+This Go http.Handler module is imported as djmo.ch/go-shrt.
 
-using
------
+To use, initialize Shrt with a shrt.Config objec. Drop this Handler
+into your site's http.ServeMux and start serving shortlinks and go-get
+redirects.
 
-Note that by default shrt expects its data files to be relative to the
-current directory.
+CLI Reference Implementation
+----------------------------
 
-$ shrt -h
-usage: shrt [-hv] [-d dbpath] [-c cfgpath] [-l listenaddr] [init]
-$ shrt init
-server name: example.com
-SCM type: git # or hg, etc.. used for go-get redirects
-repo suffix (blank for none): .git # suffix to add to go-get repo URIs
-redirect base url: https://git.example.com
-bare redirect url: https://www.example.com
-$ shrt -l localhost:8080
-2020/12/06 12:57:01 listening on localhost:8080
+The command line interface (CLI) in this repository is useful if you
+wish to run Shrt as a standalone server. It can is installed in the
+usual manner:
 
-HTTPS is out-of-scope. Use a reverse-proxy with TLS termination.
+    $ go install djmo.ch/go-shrt/cmd/shrt@latest
 
-more documentation
-------------------
+From there you can run "shrt help" to read the CLI documentation.
 
-$ man 1 shrt
+License
+-------
+
+ISC. See the LICNSE file for full copyright and license details.
