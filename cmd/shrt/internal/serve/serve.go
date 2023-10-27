@@ -5,11 +5,13 @@ package serve
 
 import (
 	"context"
+	"io/fs"
 	"log"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	"djmo.ch/go-shrt"
 	"djmo.ch/go-shrt/cmd/shrt/internal/base"
@@ -47,12 +49,19 @@ func runServe(ctx context.Context) {
 		log.Fatal("failed to parse URL: ", err)
 	}
 
-	shrtfile, err := shrt.ReadShrtFile(cfg.DbPath)
+	shrtfile := shrt.NewShrtFile()
+	fsys := os.DirFS("/").(fs.StatFS)
+	f, err := fsys.Open(strings.TrimPrefix(cfg.DbPath, "/"))
+	if err != nil {
+		log.Println("fs error:", err)
+		os.Exit(1)
+	}
+	err = shrtfile.ReadShrtFile(f)
 	if err != nil {
 		log.Println("db error:", err)
 		os.Exit(1)
 	}
-	h := &shrt.ShrtHandler{Config: cfg, ShrtFile: shrtfile}
+	h := &shrt.ShrtHandler{Config: cfg, ShrtFile: shrtfile, FS: fsys}
 	if hangup != nil {
 		go hangup(h)
 	}

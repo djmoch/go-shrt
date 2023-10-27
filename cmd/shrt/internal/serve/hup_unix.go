@@ -3,7 +3,7 @@
 package serve
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,18 +13,17 @@ import (
 
 func init() {
 	hangup = func(h *shrt.ShrtHandler) {
-		mux := h.GetMutex()
 		hup := make(chan os.Signal, 1)
 		signal.Notify(hup, syscall.SIGHUP)
 		for {
 			<-hup
-			tmpShrt, err := shrt.ReadShrtFile(h.Config.DbPath)
+			f, err := h.FS.Open(h.Config.DbPath)
 			if err != nil {
-				log.Println("db error:", err)
-			} else {
-				mux.Lock()
-				h.ShrtFile = tmpShrt
-				mux.Unlock()
+				panic(fmt.Sprint("could not open", h.Config.DbPath))
+			}
+			err = h.ShrtFile.ReadShrtFile(f)
+			if err != nil {
+				panic(fmt.Sprint("db error:", err))
 			}
 		}
 	}

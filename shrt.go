@@ -19,10 +19,10 @@ package shrt
 import (
 	"fmt"
 	"html/template"
+	"io/fs"
 	"log"
 	"net/http"
 	"strings"
-	"sync"
 )
 
 var robotstxt = `# Welcome to Shrt
@@ -33,7 +33,7 @@ var shrtrsp = `<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>"
-<meta name="go-import" content="{{ .SrvName }}/{{ .Repo }} {{ .ScmType }} {{ .RdrName}}/{{.Repo }}{{ .Suffix }}">
+<meta name="go-import" content="{{ .SrvName }}/{{ .Repo }} {{ .ScmType }} {{ .URL }}">
 <meta http-equiv="refresh" content="0; url=https://godoc.org/{{ .SrvName }}/{{ .DocPath }}">
 </head>
 <body>
@@ -46,8 +46,7 @@ type shrtRequest struct {
 	SrvName string
 	Repo    string
 	ScmType string
-	RdrName string
-	Suffix  string
+	URL     string
 	DocPath string
 }
 
@@ -73,12 +72,7 @@ type Config struct {
 type ShrtHandler struct {
 	ShrtFile *ShrtFile
 	Config   Config
-	m        sync.RWMutex
-}
-
-// GetMutex returns the mutex used to safely access the s.ShrtFile.
-func (s *ShrtHandler) GetMutex() *sync.RWMutex {
-	return &s.m
+	FS       fs.FS
 }
 
 // Handle implements the http.Handler interface.
@@ -89,18 +83,16 @@ func (s *ShrtHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	key := req.URL.Path
-	if strings.HasPrefix(key, "/") {
-		key = key[1:]
-	}
+	p := req.URL.Path
+	p = strings.TrimPrefix(p, "/")
 
-	if key == "robots.txt" {
+	if p == "robots.txt" {
 		log.Println("incoming robot")
 		fmt.Fprintf(w, robotstxt)
 		return
 	}
 
-	if key == "" && s.Config.BareRdr != "" {
+	if p == "" && s.Config.BareRdr != "" {
 		log.Println("shortlink request for /")
 		w.Header().Add("Location", s.Config.BareRdr)
 		w.WriteHeader(http.StatusFound)
@@ -108,31 +100,36 @@ func (s *ShrtHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !strings.Contains(key, "/") {
-		s.m.RLock()
-		defer s.m.RUnlock()
-		if val := s.ShrtFile.Get(key); val != "" {
-			log.Println("shortlink request for", key)
-			w.Header().Add("Location", val)
-			w.WriteHeader(http.StatusMovedPermanently)
-			fmt.Fprintln(w, "Redirecting")
-			return
-		}
+	key := strings.SplitN(p, "/", 2)[0]
+
+	val, err := s.ShrtFile.Get(key)
+	if err != nil {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
 	}
 
-	repo := strings.SplitN(key, "/", 2)[0]
-	log.Println("go-get request for", repo)
-	t := template.Must(template.New("shrt").Parse(shrtrsp))
-	sReq := shrtRequest{
-		SrvName: s.Config.SrvName,
-		Repo:    repo,
-		ScmType: s.Config.ScmType,
-		RdrName: s.Config.RdrName,
-		Suffix:  s.Config.Suffix,
-		DocPath: key,
+	switch val.Type {
+	case ShortLink:
+		if key != p {
+			http.Error(w, "Not found", http.StatusNotFound)
+			return
+		}
+		log.Println("shortlink request for", key)
+		w.Header().Add("Location", val.URL)
+		w.WriteHeader(http.StatusMovedPermanently)
+		fmt.Fprintln(w, "Redirecting")
+	case GoGet:
+		log.Println("go-get request for", key)
+		t := template.Must(template.New("shrt").Parse(shrtrsp))
+		sReq := shrtRequest{
+			SrvName: s.Config.SrvName,
+			Repo:    key,
+			ScmType: s.Config.ScmType,
+			URL:     val.URL,
+			DocPath: p,
+		}
+		if err := t.Execute(w, sReq); err != nil {
+			log.Println("error executing template:", err)
+		}
 	}
-	if err := t.Execute(w, sReq); err != nil {
-		log.Println("error executing template:", err)
-	}
-	return
 }
