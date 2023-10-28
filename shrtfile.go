@@ -10,16 +10,17 @@ import (
 	"sync"
 )
 
-// ShrtType is the type of a ShrtFile entry.
+// ShrtType is the type of a ShrtFile entry. Their textual
+// representations within the ShrtFile are listed in [NoneType].
 type ShrtType int
 
 const (
-	NoneType ShrtType = iota
-	ShortLink
-	GoGet
+	NoneType  ShrtType = iota
+	ShortLink          // shrtlnk
+	GoGet              // goget
 )
 
-// ShrtEntry is an ShrtFile entry.
+// ShrtEntry is a ShrtFile entry.
 type ShrtEntry struct {
 	URL  string
 	Type ShrtType
@@ -29,8 +30,10 @@ type ShrtEntry struct {
 // file. The syntax of the file is human readable. Each line
 // represents a key-value pair. The key is everything to the left
 // of the first equals sign, and the value is everything to the
-// right. Whitespace is trimmed from the beginning and end of both
-// keys and values.
+// right. The value is then split around the first occurence of the
+// colon character, with the left side representing the type, and the
+// right side representing the URL. Whitespace is trimmed from the
+// beginning and end of all fields.
 type ShrtFile struct {
 	m   map[string]ShrtEntry
 	mux sync.RWMutex

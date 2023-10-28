@@ -104,6 +104,7 @@ func (s *ShrtHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	val, err := s.ShrtFile.Get(key)
 	if err != nil {
+		log.Println("not found:", key)
 		http.Error(w, "Not found", http.StatusNotFound)
 		return
 	}
@@ -111,6 +112,7 @@ func (s *ShrtHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	switch val.Type {
 	case ShortLink:
 		if key != p {
+			log.Println("path elements following shortlink:", p)
 			http.Error(w, "Not found", http.StatusNotFound)
 			return
 		}
