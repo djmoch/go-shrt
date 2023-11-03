@@ -1,4 +1,5 @@
 // See LICENSE file for copyright and license details
+//go:build unix
 
 package env
 

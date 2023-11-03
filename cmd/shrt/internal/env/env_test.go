@@ -49,7 +49,7 @@ func TestRunEnvUW(t *testing.T) {
 	if _, ok := envMap[base.SHRT_DBPATH]; ok {
 		t.Fatalf("%s key found in %s", base.SHRT_DBPATH, envPath)
 	}
-	runEnvW([]string{base.SHRT_DBPATH + "=bar"})
+	runEnvW([]string{base.SHRT_DBPATH + "=/bar"})
 	envMap = readEnvFile(envPath)
 	if _, ok := envMap[base.SHRT_DBPATH]; !ok {
 		t.Fatalf("%s key not found in %s", base.SHRT_DBPATH, envPath)

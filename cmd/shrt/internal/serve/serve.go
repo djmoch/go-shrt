@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 
 	"djmo.ch/go-shrt"
 	"djmo.ch/go-shrt/cmd/shrt/internal/base"
@@ -51,7 +50,7 @@ func runServe(ctx context.Context) {
 
 	shrtfile := shrt.NewShrtFile()
 	fsys := os.DirFS("/").(fs.StatFS)
-	f, err := fsys.Open(strings.TrimPrefix(cfg.DbPath, "/"))
+	f, err := fsys.Open(cfg.DbPath)
 	if err != nil {
 		log.Println("fs error:", err)
 		os.Exit(1)

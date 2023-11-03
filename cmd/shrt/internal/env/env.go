@@ -122,7 +122,11 @@ func runEnvW(args []string) {
 
 	for k, v := range envToWrite {
 		if k == base.SHRTENV {
-			log.Print(base.SHRTENV, " can only be set using the OS environment")
+			log.Println(base.SHRTENV, "can only be set using the OS environment")
+			continue
+		}
+		if k == base.SHRT_DBPATH && !filepath.IsAbs(v) {
+			log.Println(base.SHRT_DBPATH, "must be an absolute path ... ignoring")
 			continue
 		}
 		curEnv[k] = v
@@ -182,7 +186,8 @@ func ConfigFromEnv() shrt.Config {
 		Suffix:  envOrDefault(base.SHRT_SUFFIX, suffixDefault),
 		RdrName: envOrDefault(base.SHRT_RDRNAME, rdrNameDefault),
 		BareRdr: envOrDefault(base.SHRT_BARERDR, bareRdrDefault),
-		DbPath:  envOrDefault(base.SHRT_DBPATH, dbPathDefault),
+		// Trim the leading / to satisfy fs.FS
+		DbPath: strings.TrimPrefix(envOrDefault(base.SHRT_DBPATH, dbPathDefault), "/"),
 	}
 }
 

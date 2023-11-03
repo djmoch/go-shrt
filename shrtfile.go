@@ -52,6 +52,8 @@ func (s *ShrtFile) ReadShrtFile(f fs.File) error {
 	s.mux.Lock()
 	defer s.mux.Unlock()
 
+	s.m = make(map[string]ShrtEntry)
+
 	scnr := bufio.NewScanner(f)
 
 	for scnr.Scan() {

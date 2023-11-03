@@ -3,6 +3,6 @@
 package env
 
 const (
-	envDefault    = "C:\\ProgramData\\shrt\\config"
-	dbPathDefault = "C:\\ProgramData\\shrt\\shrt.db"
+	envDefault    = `C:\ProgramData\shrt\config`
+	dbPathDefault = `C:\ProgramData\shrt\shrt.db`
 )
