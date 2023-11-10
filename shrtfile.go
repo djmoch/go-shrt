@@ -34,6 +34,8 @@ type ShrtEntry struct {
 // colon character, with the left side representing the type, and the
 // right side representing the URL. Whitespace is trimmed from the
 // beginning and end of all fields.
+//
+// ShrtFile is safe for concurrent use across multiple goroutines.
 type ShrtFile struct {
 	m   map[string]ShrtEntry
 	mux sync.RWMutex
