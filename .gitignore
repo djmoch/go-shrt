@@ -1,5 +1,3 @@
 /shrt
 /cmd/shrt/shrt
-*.sig
-shrt-*.tar.gz
-/shrt*/
+dist/

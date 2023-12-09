@@ -37,6 +37,16 @@ Environment variables:
 	SHRT_BARERDR
 		Where requests with an empty path should redirect.
 	SHRT_DBPATH
-		The path to the database file.
+		The absolute path to the database file.
+	SHRT_GOSOURCEDIR
+		The string to append to the URL for go-get redirects
+		to form the directory entry in the go-source meta tag.
+		This key is experimental and may be removed in a
+		future release.
+	SHRT_GOSOURCEFILE
+		The string to append to the URL for go-get redirects
+		to form the file entry in the go-source meta tag. This
+		key is experimental and may be removed in a future
+		release.
 `,
 }
