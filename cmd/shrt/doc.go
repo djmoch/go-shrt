@@ -5,7 +5,7 @@
 /*
 usage: shrt <command> [arguments]
 
-URL shortener and go-get redirector
+Shrt is a URL shortener and go-get redirector.
 
 Shrt is a URL shortener service (much like bit.ly without the
 trackers) that also handles go-get requests. The latter are a

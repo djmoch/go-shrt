@@ -41,7 +41,7 @@ type Command struct {
 
 var Shrt = &Command{
 	Name: "shrt",
-	LongHelp: `URL shortener and go-get redirector
+	LongHelp: `Shrt is a URL shortener and go-get redirector.
 
 Shrt is a URL shortener service (much like bit.ly without the
 trackers) that also handles go-get requests. The latter are a
