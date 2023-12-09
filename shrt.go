@@ -33,7 +33,8 @@ var shrtrsp = `<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>"
-<meta name="go-import" content="{{ .SrvName }}/{{ .Repo }} {{ .ScmType }} {{ .URL }}">
+<meta name="go-import" content="{{ .SrvName }}/{{ .Repo }} {{ .ScmType }} {{ .URL }}">{{ if ne .GoSourceDir "" }}
+<meta name="go-source" content="{{ .SrvName }}/{{ .Repo }} {{ .URL }} {{ .URL }}/{{ .GoSourceDir }} {{ .URL }}/{{ .GoSourceFile }}">{{ end }}
 <meta http-equiv="refresh" content="0; url=https://godoc.org/{{ .SrvName }}/{{ .DocPath }}">
 </head>
 <body>
@@ -43,11 +44,13 @@ Redirecting to docs at <a href="https://godoc.org/{{ .SrvName }}/{{ .DocPath }}"
 `
 
 type shrtRequest struct {
-	SrvName string
-	Repo    string
-	ScmType string
-	URL     string
-	DocPath string
+	SrvName      string
+	Repo         string
+	ScmType      string
+	URL          string
+	DocPath      string
+	GoSourceDir  string
+	GoSourceFile string
 }
 
 // Config contains all of the global configuration for Shrt. All
@@ -66,6 +69,14 @@ type Config struct {
 	BareRdr string
 	// The path to the [ShrtFile]-formatted database file.
 	DbPath string
+	// The string to append to the URL for go-get redirects to
+	// form the directory entry in the go-source meta tag. This
+	// key is experimental and may be removed in a future release.
+	GoSourceDir string
+	// The string to append to the URL for go-get redirects to
+	// form the file entry in the go-source meta tag.  This
+	// key is experimental and may be removed in a future release.
+	GoSourceFile string
 }
 
 // ShrtHandler is the core [http.Handler] for go-shrt.
@@ -124,11 +135,13 @@ func (s *ShrtHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		log.Println("go-get request for", key)
 		t := template.Must(template.New("shrt").Parse(shrtrsp))
 		sReq := shrtRequest{
-			SrvName: s.Config.SrvName,
-			Repo:    key,
-			ScmType: s.Config.ScmType,
-			URL:     val.URL,
-			DocPath: p,
+			SrvName:      s.Config.SrvName,
+			Repo:         key,
+			ScmType:      s.Config.ScmType,
+			URL:          val.URL,
+			DocPath:      p,
+			GoSourceDir:  s.Config.GoSourceDir,
+			GoSourceFile: s.Config.GoSourceFile,
 		}
 		if err := t.Execute(w, sReq); err != nil {
 			log.Println("error executing template:", err)

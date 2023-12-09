@@ -21,11 +21,13 @@ import (
 )
 
 const (
-	srvNameDefault = "example.com"
-	scmTypeDefault = "git"
-	suffixDefault  = ".git"
-	rdrNameDefault = "github.com/user"
-	bareRdrDefault = "example.org"
+	srvNameDefault      = "example.com"
+	scmTypeDefault      = "git"
+	suffixDefault       = ".git"
+	rdrNameDefault      = "github.com/user"
+	bareRdrDefault      = "example.org"
+	goSourceDirDefault  = ""
+	goSourceFileDefault = ""
 )
 
 var Cmd = &base.Command{
@@ -187,7 +189,9 @@ func ConfigFromEnv() shrt.Config {
 		RdrName: envOrDefault(base.SHRT_RDRNAME, rdrNameDefault),
 		BareRdr: envOrDefault(base.SHRT_BARERDR, bareRdrDefault),
 		// Trim the leading / to satisfy fs.FS
-		DbPath: strings.TrimPrefix(envOrDefault(base.SHRT_DBPATH, dbPathDefault), "/"),
+		DbPath:       strings.TrimPrefix(envOrDefault(base.SHRT_DBPATH, dbPathDefault), "/"),
+		GoSourceDir:  envOrDefault(base.SHRT_GOSOURCEDIR, goSourceDirDefault),
+		GoSourceFile: envOrDefault(base.SHRT_GOSOURCEFILE, goSourceFileDefault),
 	}
 }
 
@@ -224,13 +228,15 @@ func MergeEnv() {
 	}
 
 	defaults := map[string]string{
-		base.SHRTENV:      envDefault,
-		base.SHRT_SRVNAME: srvNameDefault,
-		base.SHRT_SCMTYPE: scmTypeDefault,
-		base.SHRT_SUFFIX:  suffixDefault,
-		base.SHRT_RDRNAME: rdrNameDefault,
-		base.SHRT_BARERDR: bareRdrDefault,
-		base.SHRT_DBPATH:  dbPathDefault,
+		base.SHRTENV:           envDefault,
+		base.SHRT_SRVNAME:      srvNameDefault,
+		base.SHRT_SCMTYPE:      scmTypeDefault,
+		base.SHRT_SUFFIX:       suffixDefault,
+		base.SHRT_RDRNAME:      rdrNameDefault,
+		base.SHRT_BARERDR:      bareRdrDefault,
+		base.SHRT_DBPATH:       dbPathDefault,
+		base.SHRT_GOSOURCEDIR:  goSourceDirDefault,
+		base.SHRT_GOSOURCEFILE: goSourceFileDefault,
 	}
 
 	// Populate missing environment variables with defaults
