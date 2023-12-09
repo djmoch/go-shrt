@@ -10,17 +10,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sync"
 
 	"djmo.ch/go-shrt/cmd/shrt/internal/base"
 	"djmo.ch/go-shrt/cmd/shrt/internal/env"
 	"djmo.ch/go-shrt/cmd/shrt/internal/help"
 	"djmo.ch/go-shrt/cmd/shrt/internal/serve"
 	"djmo.ch/go-shrt/cmd/shrt/internal/version"
-)
-
-var (
-	mux *sync.RWMutex
 )
 
 func init() {

@@ -88,7 +88,7 @@ func (s *ShrtHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	if p == "robots.txt" {
 		log.Println("incoming robot")
-		fmt.Fprintf(w, robotstxt)
+		fmt.Fprint(w, robotstxt)
 		return
 	}
 
