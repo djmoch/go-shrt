@@ -34,11 +34,18 @@ var shrtrsp = `<!DOCTYPE html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>"
 <meta name="go-import" content="{{ .SrvName }}/{{ .Repo }} {{ .ScmType }} {{ .URL }}">{{ if ne .GoSourceDir "" }}
-<meta name="go-source" content="{{ .SrvName }}/{{ .Repo }} {{ .URL }} {{ .URL }}/{{ .GoSourceDir }} {{ .URL }}/{{ .GoSourceFile }}">{{ end }}
-<meta http-equiv="refresh" content="0; url=https://godoc.org/{{ .SrvName }}/{{ .DocPath }}">
+<meta name="go-source" content="{{ .SrvName }}/{{ .Repo }} {{ .URL }} {{ .URL }}/{{ .GoSourceDir }} {{ .URL }}/{{ .GoSourceFile }}">
+<meta content="{{ .ScmType }}" name="vcs">
+<meta content="{{ .URL }}" name="vcs:clone">
+<meta content="{{ .URL }}" name="forge:summary">
+<meta content="{{ .URL }}/-/tree/{ref}/{path}" name="forge:dir">
+<meta content="{{ .URL }}/-/blob/{ref}/{path}" name="forge:file">
+<meta content="{{ .URL }}/-/raw/{ref}/{path}" name="forge:rawfile">
+<meta content="{{ .URL }}/-/blob/{ref}/{path}#L{line}" name="forge:line">{{ end }}
+<meta http-equiv="refresh" content="0; url=https://pkg.go.dev/{{ .SrvName }}/{{ .DocPath }}">
 </head>
 <body>
-Redirecting to docs at <a href="https://godoc.org/{{ .SrvName }}/{{ .DocPath }}">godoc.org/{{ .SrvName }}/{{ .DocPath }}</a>...
+Redirecting to docs at <a href="https://pkg.go.dev/{{ .SrvName }}/{{ .DocPath }}">pkg.go.dev/{{ .SrvName }}/{{ .DocPath }}</a>...
 </body>
 </html>
 `
